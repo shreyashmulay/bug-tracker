@@ -74,13 +74,30 @@ pipeline {
             post {
                 always {
                     junit 'tests-api/test-results.xml'
-                    publishHTML target:[
+                    publishHTML targets:[
                         reportDir: 'tests-api/playwright-report',
                         reportFiles: 'index.html',
                         reportName: 'Playwright API Report'
                     ]
                 }
             }
+        }
+        stage ('E2E Tests'){
+            agent{
+                docker{
+                    image 'mcr.microsoft.com/playwright:v1.44.0-focal'
+                    reuseNode true
+                    args '-u 0 --network=host'
+
+                }
+            }
+            steps{
+                dir('tests-e2e'){
+                    bat 'npm ci'
+                    bat 'npx playwright test'
+                }
+            }
+
         }
     } 
 
