@@ -5,7 +5,7 @@ pipeline {
         stage('Unit Tests - Backend') {
             agent {
                 docker {
-                    image 'golang:1.20'
+                    docker.image('golang:1.20').inside('-v /var/run/docker.sock:/var/run/docker.sock')
                     reuseNode true
                         
                     }
