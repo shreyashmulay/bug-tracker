@@ -74,7 +74,7 @@ pipeline {
             post {
                 always {
                     junit 'tests-api/test-results.xml'
-                    publishHTML target[
+                    publishHTML target:[
                         reportDir: 'tests-api/playwright-report',
                         reportFiles: 'index.html',
                         reportName: 'Playwright API Report'
@@ -95,6 +95,16 @@ pipeline {
                 dir('tests-e2e'){
                     bat 'npm ci'
                     bat 'npx playwright test'
+                }
+            }
+            post {
+                always {
+                    junit 'tests-e2e/test-results.xml'
+                    publishHTML target:[
+                        reportDir: 'tests-e2e/playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright E2E Report'
+                    ]
                 }
             }
 
