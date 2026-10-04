@@ -54,7 +54,7 @@ pipeline {
                 bat 'docker compose up --build -d'
             }
         }
-        stage('API Tests')
+        stage('API Tests'){
         agent {
             docker{
             image 'mcr.microsoft.com/playwright:v1.44.0-focal'
