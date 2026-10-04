@@ -74,7 +74,7 @@ pipeline {
             post {
                 always {
                     junit 'tests-api/test-results.xml'
-                    publishHTML targer:[
+                    publishHTML target:[
                         reportDir: 'tests-api/playwright-report',
                         reportFiles: 'index.html',
                         reportName: 'Playwright API Report'
