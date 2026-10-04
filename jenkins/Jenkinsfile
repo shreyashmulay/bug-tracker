@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     stages {
-        stage('Unit Tests - Backend') {
+        stage('Unit Tests - Backend') 
+        {
             agent {
                 docker {
                     image 'snakee/golang-junit:1.21'
@@ -20,6 +21,7 @@ pipeline {
                 always{
                     junit 'bugtracker-backend/test-results.xml'
                 }
+        }
         }
         stage('Unit Tests - FrontEnd') {
             agent {
