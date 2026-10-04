@@ -2,61 +2,57 @@ pipeline {
     agent any
 
     stages {
-        stage('Unit Tests - Backend') 
-        {
+        stage('Unit Tests - Backend') {
             agent {
                 docker {
                     image 'snakee/golang-junit:1.21'
                     reuseNode true
-                        
-                    }
                 }
+            }
             steps {
                 dir('bugtracker-backend') {
                     bat 'go test -v ./... 2>&1 | go-junit-report > test-results.xml'
                 }
-                
             }
             post {
-                always{
+                always {
                     junit 'bugtracker-backend/test-results.xml'
                 }
+            }
         }
-        }
+
         stage('Unit Tests - FrontEnd') {
             agent {
                 docker {
-                    image'node:20-alpine'
+                    image 'node:20-alpine'
                     reuseNode true                        
-                    }
                 }
+            }
             steps {
                 dir('bugtracker-frontend') {
-                    bat  '''
+                    bat '''
                         npm ci
                         npm test
-                        '''
+                    '''
                 }
-                
             }
             post {
-                always{
+                always {
                     junit 'bugtracker-frontend/test-results.xml'
                 }
             }
-        stage('launch Application'){
+        } 
+        stage('launch Application') {
             agent {
                 docker {
                     image 'docker:27.5.1'
                     reuseNode true  
                     args '-v /var/run/docker.sock:/var/run/docker.sock -u 0'                                            
-                    }
                 }
+            }
             steps {
                 bat 'docker compose up --build -d'
             }
         }
-        }
     }
-    
 }
