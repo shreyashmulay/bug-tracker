@@ -71,8 +71,18 @@ pipeline {
                     bat 'npx playwright test'
                 }
             }
+            post {
+                always {
+                    junit 'tests-api/test-results.xml'
+                    publishHTML targer:[
+                        reportDir: 'tests-api/playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright API Report'
+                    ]
+                }
+            }
         }
-    } // <--- Added missing closing brace for `stages`
+    } 
 
     post {
         always {
