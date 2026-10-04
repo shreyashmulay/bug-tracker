@@ -42,6 +42,7 @@ pipeline {
                 }
             }
         } 
+
         stage('launch Application') {
             agent {
                 docker {
@@ -54,24 +55,27 @@ pipeline {
                 bat 'docker compose up --build -d'
             }
         }
-        stage('API Tests'){
-        agent {
-            docker{
-            image 'mcr.microsoft.com/playwright:v1.44.0-focal'
-            reuseNode true
-            args '-u 0 --network=host'
+
+        stage('API Tests') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.44.0-focal'
+                    reuseNode true
+                    args '-u 0 --network=host'
+                }
+            }
+            steps {
+                dir('tests-api') {
+                    bat 'npx wait-port http://localhost:8080/api/health -t 30000'
+                    bat 'npm ci'
+                    bat 'npx playwright test'
+                }
             }
         }
-        steps {
-            dir('tests-api'){
-                bat 'npx wait-port http://localhost:8080/api/health -t 30000'
-                bat 'npm ci'
-                bat 'npx playwright test'
-            }
-        }
-    }
-    post{
-        always{
+    } // <--- Added missing closing brace for `stages`
+
+    post {
+        always {
             cleanWs()
         }
     }
