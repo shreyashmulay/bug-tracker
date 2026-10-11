@@ -102,5 +102,3 @@ jobs:
             ${{ needs.unit-test-backend.outputs.coverage }}
            
             ```
-s
-            </details>
