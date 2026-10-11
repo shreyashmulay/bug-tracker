@@ -3,12 +3,16 @@ name: CI
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 
 jobs:
   unit-test-backend:
     runs-on: ubuntu-latest
+    outputs:
+      coverage: ${{ steps.test-backend.outputs.report }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +34,7 @@ jobs:
           reporter: jest-junit
 
       - name: Execute Backend Unit Tests
+        id: test-backend
         working-directory: ./bugtracker-backend
         run: |
           go test -json -coverprofile=coverage.out -covermode=atomic ./...
@@ -40,10 +45,13 @@ jobs:
           cat coverage.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
+          echo "report <<EOF" >> $GITHUB_OUTPUT
+          cat coverage.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
           go test -v ./... 2>&1 | tee test-results.log | go-junit-report > test-results.xml
 
   Unit-test-frontend:
-    needs: unit-test-backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,3 +81,26 @@ jobs:
           name: Frontend Unit Tests Report
           path: bugtracker-frontend/test-results.xml
           reporter: jest-junit
+    
+    
+    
+    
+  create-coverage-comment:
+    if: github.event_name == 'pull_request'
+    needs: [unit-test-backend]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Create Backend Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Backend Test Coverage Report
+            ```text
+            ${{ needs.unit-test-backend.outputs.coverage }}
+           
+            ```
+s
+            </details>
